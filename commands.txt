@@ -1,0 +1,34 @@
+minikube
+
+# Give access to LoadBalancer (https://minikube.sigs.k8s.io/docs/handbook/accessing/#loadbalancer-access)
+minikube tunnel
+
+--------------
+docker
+
+docker image prune --all
+
+# Remove all stopped containers
+docker rm $(docker ps -a -q)
+
+# Remove unused docker data
+docker system prune
+
+--------------
+kubetcl
+
+# Use --watch for interactive display
+kubectl get po -L app --watch
+
+# Start a pod with a minimal curl for cluster investigation
+kubectl run --image=tutum/curl -it --restart=Never --rm client-pod
+kubectl run --image=tutum/dnsutils -it --restart=Never --rm client-pod
+
+# Retrieving the full manifest of a running pod
+kubectl get po kubia -o yaml
+
+# Create a ConfigMap from an env file
+kubectl create configmap kubia-config --from-env-file=kubia.conf
+
+# Update a ConfigMap
+kubectl create configmap kubia-config --from-env-file=kubia.conf --dry-run=client -o yaml | kubectl apply -f -

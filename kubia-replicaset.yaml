@@ -1,0 +1,25 @@
+# It's better to directyly create a Deployement resource
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: kubia-rs
+spec:
+
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: kubia
+
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+        - name: kubia
+          image: ahamez/kubia:0.10.0
+          ports:
+            - name: http
+              containerPort: 8080

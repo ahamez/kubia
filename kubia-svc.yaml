@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service # default to ClusterIp
+metadata:
+  name: kubia-svc
+spec:
+  ports:
+    - port: 8001
+      targetPort: 8080
+  selector:
+    app: kubia

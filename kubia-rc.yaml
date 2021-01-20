@@ -1,0 +1,22 @@
+# Will be eventually deprecated. Superseded by ReplicaSet and Deployement
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kubia-rc
+spec:
+  replicas: 3
+  # optional as it's redundant with template.metadata.labels
+  # selector:
+  #   app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+        - name: kubia
+          image: ahamez/kubia:0.9.0
+          ports:
+            - name: http
+              containerPort: 8080

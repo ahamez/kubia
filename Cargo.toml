@@ -1,0 +1,11 @@
+[package]
+name = "kubia"
+version = "0.10.0"
+authors = ["Alexandre Hamez"]
+edition = "2018"
+
+[dependencies]
+actix-web = "3"
+hostname = "^0.3"
+log = "0.4"
+simple_logger = {version = "1.11.0", features = ["chrono"]}

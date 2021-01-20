@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: kubia-deploy
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: kubia
+
+  template:
+
+    metadata:
+      labels:
+        app: kubia
+
+    spec:
+      containers:
+        - name: kubia
+          image: ahamez/kubia:0.10.0
+          ports:
+            - name: http
+              containerPort: 8080
