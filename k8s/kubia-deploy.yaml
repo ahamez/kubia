@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-lb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: http
+  selector:
+    app: kubia
+
+--- # Mandatory to seperate object definitions
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: kubia-deploy
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: kubia
+
+  template:
+
+    metadata:
+      labels:
+        app: kubia
+
+    spec:
+      volumes:
+        - name: content
+          emptyDir: {}
+      containers:
+
+        # Sidecar for TLS proxy
+        - name: envoy
+          image: luksa/kubia-ssl-proxy:1.0
+          ports:
+            - name: https
+              containerPort: 8443
+            - name: admin
+              containerPort: 9901
+
+        # Sidecar to generate content for kubia
+        - name: fortune-writer
+          image: ahamez/fortune-writer:1.0
+          volumeMounts:
+            - name: content
+              mountPath: /var/local/output
+
+        # The main container
+        - name: kubia
+          image: ahamez/kubia:0.10.0
+
+          volumeMounts:
+            - name: content
+              mountPath: /usr/share/kubia
+              readOnly: true
+
+          # Execute some command right after the container has been started.
+          # In this case, we could initialize the first quote. However, this would
+          # require to mount /usr/share/kubia in RW mode.
+          # Could be done by a init container as well, which would remove the need
+          # for a Rw mounted volume.
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command:
+          #         - sh
+          #         - -c
+          #         - "echo first quote > /usr/share/kubia/quote"
+
+          env:
+            - name: KUBIA_FORTUNE_PATH
+              value: "/usr/share/kubia/quote"
+
+              # A single entry from kubia-config
+              # valueFrom:
+              #   configMapKeyRef:
+              #     name: kubia-config
+              #     key: some_value
+
+          envFrom:
+            - prefix: A_COOL_PREFIX_
+              configMapRef:
+                name: kubia-config
+
+          ports:
+            - name: http
+              containerPort: 8080
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 2
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
