@@ -8,4 +8,5 @@ edition = "2018"
 actix-web = "3"
 hostname = "^0.3"
 log = "0.4"
+notify = "5.0.0-pre.4"
 simple_logger = {version = "1.11.0", features = ["chrono"]}
