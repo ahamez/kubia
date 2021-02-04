@@ -10,16 +10,15 @@ spec:
   selector:
     app: kubia
 
---- # Mandatory to seperate object definitions
+---
 
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: kubia-deploy
 
 spec:
-  replicas: 3
+  replicas: 1
 
   selector:
     matchLabels:
@@ -35,6 +34,10 @@ spec:
       volumes:
         - name: content
           emptyDir: {}
+        - name: credentials
+          secret:
+            secretName: kubia-credentials
+
       containers:
 
         # Sidecar for TLS proxy
@@ -55,11 +58,15 @@ spec:
 
         # The main container
         - name: kubia
-          image: ahamez/kubia:0.10.0
+          image: ahamez/exkubia:0.3.0
 
           volumeMounts:
             - name: content
               mountPath: /usr/share/kubia
+              readOnly: true
+
+            - name: credentials
+              mountPath: /usr/share/credentials/
               readOnly: true
 
           # Execute some command right after the container has been started.
@@ -79,7 +86,10 @@ spec:
             - name: KUBIA_FORTUNE_PATH
               value: "/usr/share/kubia/quote"
 
-              # A single entry from kubia-config
+            - name: KUBIA_SECRETS_DIR_PATH
+              value: "/usr/share/credentials"
+
+              # A single entry from already existing ConfigMap kubia-config
               # valueFrom:
               #   configMapKeyRef:
               #     name: kubia-config
@@ -102,5 +112,5 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /
+              path: /ready
               port: http
