@@ -16,16 +16,19 @@ defmodule Exkubia.Router do
   get "/fortune" do
     conn = fetch_query_params(conn)
 
-    env = case Map.fetch(conn.query_params, "env") do
-      {:ok, _value} -> """
+    env =
+      case Map.fetch(conn.query_params, "env") do
+        {:ok, _value} ->
+          """
 
-       Env:
-      #{System.get_env() |> Enum.map_join("\n", fn {key, value} -> "#{key}=#{value}" end)}
+           Env:
+          #{System.get_env() |> Enum.map_join("\n", fn {key, value} -> "#{key}=#{value}" end)}
 
-      """
+          """
 
-      _ -> ""
-    end
+        _ ->
+          ""
+      end
 
     fortune = Exkubia.Fortune.fortune(opts[:config].fortune_process)
     {:ok, hostname} = :inet.gethostname()

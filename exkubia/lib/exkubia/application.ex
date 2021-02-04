@@ -32,13 +32,6 @@ defmodule Exkubia.Application do
           {:port, "KUBIA_HTTP_PORT", default: 8080, map: &String.to_integer/1}
         ]
       }
-      # %Vapor.Provider.File{
-      #   path: "kubia_config.toml",
-      #   bindings: [
-      #     {:fortune_path, "kubia.fortune_path"},
-      #     {:port, "kubia.port", default: 8080, map: &String.to_integer/1}
-      #   ]
-      # }
     ]
 
     Vapor.load!(providers)

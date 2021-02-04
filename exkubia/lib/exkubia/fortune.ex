@@ -25,7 +25,6 @@ defmodule Exkubia.Fortune do
     {:ok, state, {:continue, :init}}
   end
 
-
   def handle_continue(:init, state) do
     dir_path = Path.dirname(state.file_path)
     state = %{state | fortune: load_fortune(state.file_path)}
