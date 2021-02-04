@@ -44,7 +44,8 @@ defmodule Exkubia.Fortune do
     Logger.debug("#{inspect(path)}: #{inspect(events)}")
 
     state =
-      if to_string(path) == state.file_path and :modified in events do
+      if to_string(path) == state.file_path and Exkubia.FileWatchingUtil.modifed?(events) and
+           File.exists?(path) do
         Logger.info("Will load new fortune from #{state.file_path}")
         %{state | fortune: load_fortune(state.file_path)}
       else

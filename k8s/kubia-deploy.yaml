@@ -18,7 +18,7 @@ metadata:
   name: kubia-deploy
 
 spec:
-  replicas: 1
+  replicas: 3
 
   selector:
     matchLabels:
@@ -58,7 +58,7 @@ spec:
 
         # The main container
         - name: kubia
-          image: ahamez/exkubia:0.3.0
+          image: ahamez/exkubia:0.5.0
 
           volumeMounts:
             - name: content

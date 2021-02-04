@@ -57,7 +57,7 @@ defmodule Exkubia.Secrets do
           state
 
         secret_atom ->
-          if :modified in events do
+          if Exkubia.FileWatchingUtil.modifed?(events) and File.exists?(path) do
             Logger.info("Will load new secret from #{path}")
             %{state | secrets: Map.put(state.secrets, secret_atom, load_secret!(path))}
           else

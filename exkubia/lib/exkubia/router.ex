@@ -13,6 +13,20 @@ defmodule Exkubia.Router do
     |> send_resp(Plug.Conn.Status.code(:ok), "")
   end
 
+  get "/secrets" do
+    {:ok, credentials1} = Exkubia.Secrets.secret(opts[:config].secrets_process, :credentials)
+    {:ok, credentials2} = Exkubia.Secrets.secret(opts[:config].secrets_process, :credentials2)
+
+    resp = """
+    🤫 #{credentials1}
+    🤫 #{credentials2}
+    """
+
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(Plug.Conn.Status.code(:ok), resp)
+  end
+
   get "/fortune" do
     conn = fetch_query_params(conn)
 
