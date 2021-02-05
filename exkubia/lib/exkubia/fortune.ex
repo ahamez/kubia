@@ -41,7 +41,7 @@ defmodule Exkubia.Fortune do
   end
 
   def handle_info({_pid, {:fs, :file_event}, {path, events}}, state) do
-    Logger.debug("#{inspect(path)}: #{inspect(events)}")
+    Logger.debug("Fortune watcher: #{inspect(path)}: #{inspect(events)}")
 
     state =
       if to_string(path) == state.file_path and Exkubia.FileWatchingUtil.modifed?(events) and

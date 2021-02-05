@@ -58,7 +58,7 @@ spec:
 
         # The main container
         - name: kubia
-          image: ahamez/exkubia:0.5.0
+          image: ahamez/exkubia:0.6.4
 
           volumeMounts:
             - name: content

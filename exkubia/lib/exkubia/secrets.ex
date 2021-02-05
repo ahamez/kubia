@@ -47,19 +47,19 @@ defmodule Exkubia.Secrets do
   end
 
   def handle_info({_pid, {:fs, :file_event}, {path, events}}, state) do
-    path = to_string(path)
+    path = Path.basename(to_string(path))
 
-    Logger.debug("#{inspect(path)}: #{inspect(events)}")
+    Logger.debug("Secret watcher: #{inspect(path)}: #{inspect(events)}")
 
     state =
       case state.secrets_files[path] do
         nil ->
           state
 
-        secret_atom ->
-          if Exkubia.FileWatchingUtil.modifed?(events) and File.exists?(path) do
-            Logger.info("Will load new secret from #{path}")
-            %{state | secrets: Map.put(state.secrets, secret_atom, load_secret!(path))}
+        {abs_path, secret_atom} ->
+          if File.exists?(abs_path) do
+            Logger.info("Reload secret from #{path}")
+            %{state | secrets: Map.put(state.secrets, secret_atom, load_secret!(abs_path))}
           else
             state
           end
@@ -76,13 +76,13 @@ defmodule Exkubia.Secrets do
 
   defp mk_secrets_files(dir_path) do
     for {file_name, secret_atom} <- @secrets_files, into: %{} do
-      {Path.join([dir_path, file_name]), secret_atom}
+      {file_name, {Path.join([dir_path, file_name]), secret_atom}}
     end
   end
 
   defp load_all_secrets!(secrets_files) do
-    for {file_path, secret_atom} <- secrets_files, into: %{} do
-      {secret_atom, load_secret!(file_path)}
+    for {_file_name, {abs_file_path, secret_atom}} <- secrets_files, into: %{} do
+      {secret_atom, load_secret!(abs_file_path)}
     end
   end
 
