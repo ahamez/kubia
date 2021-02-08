@@ -1,3 +1,6 @@
+# Headless service:  no load balancing, useful when we want to use a custom discovery service
+# (like https://github.com/ahamez/todo/blob/25420c57eddfd5879c996504aaa1f97aa1b022bc/config/prod.exs#L11)
+# See https://kubernetes.io/docs/concepts/services-networking/service/#headless-services
 apiVersion: v1
 kind: Service
 metadata:
