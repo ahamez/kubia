@@ -40,15 +40,6 @@ spec:
 
       containers:
 
-        # Sidecar for TLS proxy
-        - name: envoy
-          image: luksa/kubia-ssl-proxy:1.0
-          ports:
-            - name: https
-              containerPort: 8443
-            - name: admin
-              containerPort: 9901
-
         # Sidecar to generate content for kubia
         - name: fortune-writer
           image: ahamez/fortune-writer:1.0
