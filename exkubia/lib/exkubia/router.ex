@@ -62,6 +62,14 @@ defmodule Exkubia.Router do
     |> send_resp(Plug.Conn.Status.code(:ok), resp)
   end
 
+  get "/env" do
+    resp = "#{System.get_env() |> Enum.map_join("\n", fn {key, value} -> "#{key}=#{value}" end)}"
+
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(Plug.Conn.Status.code(:ok), resp)
+  end
+
   get "/ready" do
     conn
     |> send_resp(Plug.Conn.Status.code(:ok), "")
