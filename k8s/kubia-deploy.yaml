@@ -31,6 +31,8 @@ spec:
         app: kubia
 
     spec:
+      serviceAccountName: vault
+
       volumes:
         - name: content
           emptyDir: {}
@@ -49,7 +51,7 @@ spec:
 
         # The main container
         - name: kubia
-          image: ahamez/exkubia:0.7.0
+          image: ahamez/exkubia:0.8.2
 
           volumeMounts:
             - name: content
@@ -79,6 +81,11 @@ spec:
 
             - name: KUBIA_SECRETS_DIR_PATH
               value: "/usr/share/credentials"
+
+            - name: JWT_PATH
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            - name: VAULT_ADDR
+              value: "http://vault:8200"
 
               # A single entry from already existing ConfigMap kubia-config
               # valueFrom:

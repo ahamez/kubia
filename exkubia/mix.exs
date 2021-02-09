@@ -4,7 +4,7 @@ defmodule Exkubia.MixProject do
   def project do
     [
       app: :exkubia,
-      version: "0.7.0",
+      version: "0.8.2",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -22,9 +22,11 @@ defmodule Exkubia.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:finch, "~> 0.6.0"},
+      {:fs, "~> 6.0"},
+      {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.0"},
       {:remote_ip, "~> 0.2.0"},
-      {:fs, "~> 6.0"},
       {:vapor, "~> 0.10"}
     ]
   end

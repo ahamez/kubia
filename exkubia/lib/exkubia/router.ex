@@ -1,5 +1,6 @@
 defmodule Exkubia.Router do
   use Plug.Router
+  require Logger
 
   plug(RemoteIp)
   plug(Plug.RequestId)
@@ -13,13 +14,56 @@ defmodule Exkubia.Router do
     |> send_resp(Plug.Conn.Status.code(:ok), "")
   end
 
+  get "/secret" do
+    jwt = opts[:config].k8s_jwt
+    vault_addr = opts[:config].vault_addr
+
+    resp =
+      if jwt && vault_addr do
+        {:ok, %Finch.Response{body: body}} =
+          Finch.build(
+            :post,
+            "#{vault_addr}/v1/auth/kubernetes/login",
+            [{"Content-Type", "application/json"}],
+            %{"role" => "webapp", "jwt" => jwt} |> Jason.encode!()
+          )
+          |> IO.inspect(label: "🔒")
+          |> Finch.request(HttpClient)
+
+        Logger.info("Body #{inspect(body)}")
+
+        vault_token = Jason.decode!(body)["auth"]["client_token"]
+
+        # Should stay secret ;-)
+        Logger.info("Got vault_token #{inspect(vault_token)}")
+
+        {:ok, %Finch.Response{body: body}} =
+          Finch.build(
+            :get,
+            "#{vault_addr}/v1/secret/data/webapp/config",
+            [{"Content-Type", "application/json"}, {"X-Vault-Token", "#{vault_token}"}]
+          )
+          |> Finch.request(HttpClient)
+
+        secrets = Jason.decode!(body)
+
+        "#{inspect(secrets["data"]["data"])}"
+      else
+        "😰"
+      end
+
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(Plug.Conn.Status.code(:ok), resp)
+  end
+
   get "/secrets" do
     {:ok, credentials1} = Exkubia.Secrets.secret(opts[:config].secrets_process, :credentials)
     {:ok, credentials2} = Exkubia.Secrets.secret(opts[:config].secrets_process, :credentials2)
 
     resp = """
-    🤫 #{credentials1}
-    🤫 #{credentials2}
+    🤫1: #{credentials1}
+    🤫2: #{credentials2}
     """
 
     conn

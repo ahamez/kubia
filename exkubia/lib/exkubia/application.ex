@@ -13,6 +13,7 @@ defmodule Exkubia.Application do
     Logger.debug("#{inspect(config)}")
 
     children = [
+      {Finch, name: HttpClient},
       {Exkubia.Secrets, [config: config, name: config.secrets_process]},
       {Plug.Cowboy,
        scheme: :http, plug: {Exkubia.Router, [config: config]}, options: [port: config.port]},
@@ -29,7 +30,9 @@ defmodule Exkubia.Application do
         bindings: [
           {:fortune_path, "KUBIA_FORTUNE_PATH", default: "./fortune.txt"},
           {:secrets_dir_path, "KUBIA_SECRETS_DIR_PATH", default: "./secrets/"},
-          {:port, "KUBIA_HTTP_PORT", default: 8080, map: &String.to_integer/1}
+          {:port, "KUBIA_HTTP_PORT", default: 8080, map: &String.to_integer/1},
+          {:k8s_jwt, "JWT_PATH", required: false, map: &File.read!/1},
+          {:vault_addr, "VAULT_ADDR", required: false}
         ]
       }
     ]
