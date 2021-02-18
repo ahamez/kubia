@@ -7,6 +7,19 @@ defmodule Exkubia.Secrets do
     "credentials2.txt" => :credentials2
   }
 
+  defmodule State do
+    # Hide sensitive data when logging
+    # For instance:
+    # iex(1)> :sys.get_state(Exkubia.Secrets)
+    #   Exkubia.Secrets.State<
+    #     dir_path: "/Users/hal/code/kubia/exkubia/secrets",
+    #     secrets_files: %{...},
+    #     ...
+    # >
+    @derive {Inspect, only: [:dir_path, :secrets_files]}
+    defstruct dir_path: nil, secrets_files: nil, secrets: %{}
+  end
+
   def start_link(opts) do
     {config, opts} = Keyword.pop!(opts, :config)
 
@@ -23,7 +36,7 @@ defmodule Exkubia.Secrets do
   def init(secrets_dir_path) do
     abs_secrets_dir_path = Path.absname(secrets_dir_path)
 
-    state = %{
+    state = %State{
       dir_path: abs_secrets_dir_path,
       secrets_files: mk_secrets_files(abs_secrets_dir_path),
       secrets: %{}
@@ -33,7 +46,7 @@ defmodule Exkubia.Secrets do
   end
 
   def handle_continue(:init, state) do
-    state = %{state | secrets: load_all_secrets!(state.secrets_files)}
+    state = %State{state | secrets: load_all_secrets!(state.secrets_files)}
 
     Logger.info("Starting watch on #{state.dir_path}")
     :fs.start_link(:secrets_dir_watcher, state.dir_path)
